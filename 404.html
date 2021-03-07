@@ -1,0 +1,87 @@
+<style>
+  tr td:not(:first-child) {
+    padding-right: 1em;
+  }
+
+  .file-icon {
+    width: 20px;
+    height: 22px;
+  }
+
+  .folder {
+    background-image: url('data:image/gif;base64,R0lGODlhFAAWAMIAAP/////Mmcz//5lmMzMzMwAAAAAAAAAAACH+TlRoaXMgYXJ0IGlzIGluIHRoZSBwdWJsaWMgZG9tYWluLiBLZXZpbiBIdWdoZXMsIGtldmluaEBlaXQuY29tLCBTZXB0ZW1iZXIgMTk5NQAh+QQBAAACACwAAAAAFAAWAAADVCi63P4wyklZufjOErrvRcR9ZKYpxUB6aokGQyzHKxyO9RoTV54PPJyPBewNSUXhcWc8soJOIjTaSVJhVphWxd3CeILUbDwmgMPmtHrNIyxM8Iw7AQA7');
+  }
+
+  .file {
+    background-image: url('data:image/gif;base64,R0lGODlhFAAWAMIAAP///8z//5mZmTMzMwAAAAAAAAAAAAAAACH+TlRoaXMgYXJ0IGlzIGluIHRoZSBwdWJsaWMgZG9tYWluLiBLZXZpbiBIdWdoZXMsIGtldmluaEBlaXQuY29tLCBTZXB0ZW1iZXIgMTk5NQAh+QQBAAABACwAAAAAFAAWAAADWDi6vPEwDECrnSO+aTvPEddVIriN1wVxROtSxBDPJwq7bo23luALhJqt8gtKbrsXBSgcEo2spBLAPDp7UKT02bxWRdrp94rtbpdZMrrr/A5+8LhPFpHajQkAOw==');
+  }
+</style>
+
+<script>
+  var username = window.location.host.split('.')[0];
+  var path = window.location.pathname;
+
+  async function fetchTree() {
+    var url = 'https://api.github.com/repos/' +
+      `${username}/${username}.github.io/contents${path}`;
+    return await fetch(url);
+  }
+
+  function makeFileItem(file) {
+    var type = 'file';
+    if (file.type === 'dir') {
+      type = 'folder';
+    }
+    var path = '/' + file.path;
+    return `<tr>
+      <td><div class="file-icon ${type}"></div></td>
+      <td><a href="${path}">${file.name}</a></td>
+      <td>${file.size}</td>
+    </tr>
+    `;
+  }
+
+  function makeFileList(indexText, files) {
+    var fileList = '';
+    files.forEach(file => {
+      fileList += makeFileItem(file);
+    });
+
+    return `
+      <h1>${indexText}</h1>
+      <table>
+        <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Size</td>
+        </tr>
+        <tr>
+            <th colspan="3"><hr></th>
+        </tr>
+        ${fileList}
+        <tr>
+            <th colspan="3"><hr></th>
+        </tr>
+      </table>
+    `;
+  }
+
+  async function main() {
+    var resp = await fetchTree();
+    if (resp.status === 404) {
+      document.title = '404 Not Found';
+      document.body.innerHTML = `
+        <center><h1>404 Not Found</h1></center>
+        <hr><center>${username}</center>
+      `;
+      return;
+    } else if (resp.status === 200) {
+      var indexText = `Index of ${path}`;
+      document.title = indexText;
+      var files = await resp.json();
+      document.body.innerHTML = makeFileList(indexText, files);
+    }
+  }
+
+  main();
+</script>
