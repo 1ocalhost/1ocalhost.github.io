@@ -1,0 +1,194 @@
+<html>
+
+<head>
+  <title>View Windows 10’s Lock Screen Spotlight Images</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    ul {
+      margin: 0;
+    }
+
+    .top-page {
+      width: fit-content;
+      margin: 0 auto;
+      padding: 1em;
+    }
+
+    #images img {
+      width: auto;
+      height: 300px;
+      vertical-align: top;
+    }
+
+    #images p {
+      margin: 0;
+    }
+
+    .card {
+      border: 1px solid #5a5a5a78;
+      padding: 10px;
+      margin: 20px 0;
+      border-radius: 3px;
+      box-shadow: rgb(0 0 0 / 5%) 0px 1px 2px 0px,
+        rgb(0 0 0 / 5%) 0px 1px 4px 0px,
+        rgb(0 0 0 / 5%) 0px 2px 8px 0px;
+    }
+
+    .img-info {
+      display: inline-block;
+      margin-left: 5px;
+    }
+
+    .usage {
+      background: #f5fff7;
+      padding-right: 2em;
+      padding-top: 0;
+    }
+
+    .code {
+      word-break: break-all;
+      border-radius: 3px;
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      padding: 6px 10px;
+      font-size: 0.9em;
+      max-width: 55em;
+    }
+
+    .usage li p {
+      margin-top: 1em;
+      margin-bottom: 0.2em;
+    }
+
+    .tips {
+      background-color: #f6faff;
+    }
+
+    .spotlight {
+      background-color: #fffff8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-page">
+    <div>
+      <h2>View Windows 10’s Lock Screen Spotlight Images</h2>
+
+      <div class="usage card">
+        <ul>
+          <li>
+            <p>Step 1: Copy the text below:</p>
+            <div class="code">
+              %localappdata%\Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\ContentManagementSDK\Creatives\338387
+            </div>
+          </li>
+          <li>
+            <p>Step 2: Click the button below and paste the text into "Folder" edit box, then click "Upload":</p>
+            <input type="file" id="files" class="custom-file-input" multiple="" directory="" webkitdirectory=""
+              mozdirectory="" />
+          </li>
+          <li>
+            <p>Step 3: Right click the image to save it.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="tips card">
+        <ul>
+          <li>All code is running on your browser, no data would be sent to server.</li>
+          <li>The source code is hosted on
+            <a href="https://github.com/1ocalhost/1ocalhost.github.io/blob/main/win10-lock-screen-spotlight.html" target="_blank">GitHub</a>.
+          </li>
+        </ul>
+      </div>
+
+    </div>
+    <div id="images"></div>
+  </div>
+  <script>
+    var filesElement = document.getElementById('files');
+    var imagesElement = document.getElementById('images');
+
+    filesElement.onchange = function (event) {
+      var fileList = event.target.files;
+      for (var i = 0; i < fileList.length; i++) {
+        readFile(fileList[i]);
+      }
+    }
+
+    function readFile(file) {
+      if (file.size && file.size > (10 * 1024 * 1024)) {
+        console.warn('big file skipped');
+        return;
+      }
+
+      let isNum = /^\d+$/.test(file.name);
+      if (!isNum) {
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.readAsText(file, 'UTF-16');
+      reader.onload = function (evt) {
+        imagesElement.innerHTML += '';
+        parseFile(evt.target.result)
+      }
+      reader.onerror = function (evt) {
+        console.error('error reading file');
+      }
+    }
+
+    function parseFile(text) {
+      var obj = JSON.parse(text);
+      obj.batchrsp.items.forEach(item => {
+        var itemObj = JSON.parse(item.item);
+        var imageUrl = itemObj.ad.properties.landscapeImage.image;
+        var mataData = getMataData(itemObj.ad.items);
+        imagesElement.innerHTML += `
+            <div class="spotlight card">
+              <a href="${imageUrl}" target="_blank"><img src="${imageUrl}"></a>
+              <div class="img-info">
+                <p>Description: ${mataData.description}</p>
+                <p>Copyright: ${mataData.copyright}</p>
+              </div>
+            </div>
+          `;
+      });
+    }
+
+    function getMataData(items) {
+      var didFind = false;
+      var result = {};
+
+      items.forEach(item => {
+        if (didFind) {
+          return;
+        }
+
+        var template = item.properties.template.text;
+        if (template !== 'infoHotspot') {
+          return;
+        }
+
+        didFind = true;
+        ['description', 'copyright'].forEach(propName => {
+          result[propName] = item.properties[propName].text;
+        });
+      });
+
+      return result;
+    }
+  </script>
+</body>
+
+</html>
