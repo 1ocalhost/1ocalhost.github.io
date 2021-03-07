@@ -8,24 +8,31 @@ async function fetchTree() {
   return await fetch(url);
 }
 
-function makeFileItem(file) {
-  var type = 'file';
-  if (file.type === 'dir') {
-    type = 'folder';
-  }
+function makeFileItem(isFolder, file) {
+  var type = isFolder ? 'folder' : 'file';
   var path = '/' + file.path;
-  return `<tr>
-    <td><div class="file-icon ${type}"></div></td>
-    <td><a href="${path}">${file.name}</a></td>
-    <td>${file.size}</td>
-</tr>
-`;
+  return `
+    <tr>
+      <td><div class="file-icon ${type}"></div></td>
+      <td><a href="${path}">${file.name}</a></td>
+      <td>${file.size}</td>
+    </tr>
+  `;
 }
 
 function makeFileList(indexText, files) {
+  var folderList = '';
   var fileList = '';
+
   files.forEach(file => {
-    fileList += makeFileItem(file);
+    var isFolder = (file.type === 'dir');
+    var itemHtml = makeFileItem(isFolder, file);
+
+    if (isFolder) {
+      folderList += itemHtml;
+    } else {
+      fileList += itemHtml;
+    }
   });
 
   return `
@@ -39,12 +46,13 @@ function makeFileList(indexText, files) {
     <tr>
         <th colspan="3"><hr></th>
     </tr>
+    ${folderList}
     ${fileList}
     <tr>
         <th colspan="3"><hr></th>
     </tr>
     </table>
-`;
+  `;
 }
 
 async function main() {
@@ -52,8 +60,8 @@ async function main() {
   if (resp.status === 404) {
     document.title = '404 Not Found';
     document.body.innerHTML = `
-    <center><h1>404 Not Found</h1></center>
-    <hr><center>${username}</center>
+      <center><h1>404 Not Found</h1></center>
+      <hr><center>${username}</center>
     `;
     return;
   } else if (resp.status === 200) {
