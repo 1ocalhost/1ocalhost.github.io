@@ -216,12 +216,12 @@
     }
 
     function copyMeOnClipboard() {
-      var copyText = "%localappdata%\\Packages\\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\\LocalState\\ContentManagementSDK\\Creatives\\338387";
+      var copyText = document.querySelector('.code').innerText;
 
       navigator.clipboard.writeText(copyText).then(() => {
         // Alert the user that the action took place.
-        alert("Copied to clipboard");
-    });
+        alert('Copied to clipboard');
+      });
     }
   </script>
 </body>
