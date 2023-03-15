@@ -76,6 +76,27 @@
     .spotlight {
       background-color: #fffff8;
     }
+
+    .copy {
+      display: inline-flex;
+    }
+
+    .button {
+      border: 1px solid #00000031;
+      border-radius: 3px;
+      padding: 24px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 0px 2px 0px 8px;
+      transition-duration: 0.4s;
+      cursor: pointer;
+      background-color: #f8f8f8;
+    }
+
+    .button:hover {background-color: #e7e7e7;}
+
   </style>
 </head>
 
@@ -88,8 +109,13 @@
         <ul>
           <li>
             <p>Step 1: Copy the text below:</p>
-            <div class="code">
-              %localappdata%\Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\ContentManagementSDK\Creatives\338387
+            <div class="copy">
+              <div class="code">
+                %localappdata%\Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\ContentManagementSDK\Creatives\338387
+              </div>
+              <div>
+                <button class="button" onclick="copyMeOnClipboard()">Copy</button>
+              </div>
             </div>
           </li>
           <li>
@@ -187,6 +213,15 @@
       });
 
       return result;
+    }
+
+    function copyMeOnClipboard() {
+      var copyText = "%localappdata%\\Packages\\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\\LocalState\\ContentManagementSDK\\Creatives\\338387";
+
+      navigator.clipboard.writeText(copyText).then(() => {
+        // Alert the user that the action took place.
+        alert("Copied to clipboard");
+    });
     }
   </script>
 </body>
